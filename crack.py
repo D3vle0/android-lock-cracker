@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-import os, sys, sqlite3, time
+import os, sys, sqlite3, time, json
 
 print("=================================")
 print("   Android PIN/Pattern Cracker   ")
@@ -100,7 +100,6 @@ try:
         cur.execute(f"SELECT pattern FROM RainbowTable WHERE hash = '{sha1_hash}'")
         pattern = cur.fetchall()[0][0]
         print(f"[+] cracked pattern: {pattern}")
-        import json
         queue=json.loads(pattern)
         path=[0]*9
         for i in range(len(queue)):
