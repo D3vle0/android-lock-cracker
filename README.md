@@ -44,14 +44,10 @@ ADB_PATH = ...
 ### 실행
 
 ```sh
-# 일반 실행
-python3 crack.py
-
-# argv로 실행
 # 잠금 무력화
 python3 crack.py --del
 # PIN 
-python3 crack.py --pin -l 길이
+python3 crack.py --pin 길이
 # 패턴
 python3 crack.py --pattern
 # 도움말
