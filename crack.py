@@ -12,10 +12,11 @@ if not ADB_PATH:
     print("[-] Error: ADB_PATH not set")
     sys.exit(1)
 
-os.system("rm locksettings.* &> /dev/null")
-os.system("rm gesture.* &> /dev/null")
-os.system("rm password.key &> /dev/null") 
-os.system("rm out.txt &> /dev/null")
+def delete():
+    os.system("rm locksettings.* &> /dev/null")
+    os.system("rm gesture.* &> /dev/null")
+    os.system("rm password.key &> /dev/null") 
+    os.system("rm out.txt &> /dev/null")
 
 def check_root():
     try: 
@@ -33,6 +34,8 @@ def show_help():
     print("Options:")
     print("--del: bypass lockscreen\n--pin <pin length>: crack PIN\n--pattern: crack pattern")
     return
+
+delete()
 
 try:
     if sys.argv[1] == "--help" or sys.argv[1] == "-h":
@@ -82,6 +85,7 @@ try:
             print("[-] Error: Crack failed.")
             sys.exit(3)
         print(f'[+] cracked PIN: {pin}')
+        delete()
     elif sys.argv[1] == "--pattern":
         check_root()
         print("[+] connected to device")
@@ -101,14 +105,15 @@ try:
         path=[0]*9
         for i in range(len(queue)):
             path[queue[i]]=i+1
-        correct_answer = ""
+        pattern_path = ""
         for i in range(9):
             if (i+1)%3:
-                correct_answer += f"[{str(path[i])}] "
+                pattern_path += f"[{str(path[i])}] "
             else:
-                correct_answer += f"[{str(path[i])}]\n\n"
-        correct_answer = correct_answer[:-1]
-        print(correct_answer)
+                pattern_path += f"[{str(path[i])}]\n\n"
+        pattern_path = pattern_path[:-1]
+        print(pattern_path)
+        delete()
     elif sys.argv[1] == "--del":
         check_root()
         print("[+] connected to device")
