@@ -1,6 +1,10 @@
+import os
+import sys
+import sqlite3
+import time
+import json
 from dotenv import load_dotenv
 from termcolor import colored, cprint
-import os, sys, sqlite3, time, json
 
 print_green = lambda x: cprint(x, 'green')
 print_red = lambda x: cprint(x, 'red')
