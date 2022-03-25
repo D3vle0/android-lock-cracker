@@ -18,7 +18,7 @@
     5. 패턴, PIN을 알아내는 크래킹 프로그램 개발
     6. 해킹 문제 개발
 
-## 사용법
+## 크래킹 툴 사용법
 
 ### 설치
 
@@ -56,7 +56,32 @@ python3 crack.py -h
 python3 crack.py --help
 ```
 
-## 주의 사항
+### 주의 사항
 
 - 루팅 작업이 된 기기만 작동합니다.
 - Android 4.4 이하 버전에서만 작동합니다.
+
+## CTF 문제 세팅
+
+### Docker 설치
+
+```sh
+curl -fsSL https://get.docker.com/ | sh
+sudo service docker start
+```
+
+### Docker 이미지 빌드
+
+```sh
+cd ctf/settings
+sudo chmod +x start.sh
+cd ../
+sudo chmod +x run-docker.sh
+sudo ./run-docker.sh
+```
+
+### nc 서버 접속
+
+```sh
+nc <주소> 3000
+```

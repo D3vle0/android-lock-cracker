@@ -2,8 +2,6 @@ import sqlite3
 import random
 import hashlib
 import sys
-import os
-from dotenv import load_dotenv
 
 def encryption():
     queue=random.sample(range(9), 9)
@@ -24,9 +22,7 @@ def encryption():
         sys.exit(0)
 
 def decryption():
-    load_dotenv(verbose=True)
-    RAINBOWTABLE_PATH = os.getenv('RAINBOWTABLE_PATH')
-    conn = sqlite3.connect(RAINBOWTABLE_PATH)
+    conn = sqlite3.connect("GestureRainbowTable.db")
     cur = conn.cursor()
     queue=random.sample(range(9), 9)
     cur.execute(f"SELECT hash FROM RainbowTable WHERE pattern = '{queue}'")
