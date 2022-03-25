@@ -32,7 +32,7 @@ https://developer.android.com/studio/releases/platform-tools?hl=ko
 이곳에서 ADB (Android Debug Bridge) 를 다운받습니다.
 
 https://drive.google.com/file/d/1lqEwuR0ZDDjS_gJ3wqiKmGsWJsm53nj0/view?usp=sharing  
-이곳에서 rainbow table 데이터베이스를 다운받습니다.
+이곳에서 rainbow table 데이터베이스를 프로젝트 루트 경로에 다운받습니다.
 
 ### .env 세팅
 
