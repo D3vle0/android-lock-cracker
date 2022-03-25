@@ -24,5 +24,5 @@ RUN chmod 440 /flag
 
 RUN curl -o /home/android/GestureRainbowTable.db http://146.56.134.145:31337/file/GestureRainbowTable.db
 
-ADD ./settings/prob.xinetd /etc/xinetd.d/prob
+ADD ./settings/android.xinetd /etc/xinetd.d/prob
 ADD ./settings/start.sh /start.sh
