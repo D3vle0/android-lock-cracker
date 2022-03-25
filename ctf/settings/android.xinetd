@@ -1,0 +1,13 @@
+service android
+{
+    disable = no
+    flags = REUSE
+    socket_type = stream
+    protocol = tcp
+    user = android
+    wait = no
+    server = /usr/bin/python3
+    server_args = /home/android/main.py
+    type = UNLISTED
+    port = 3000
+}
