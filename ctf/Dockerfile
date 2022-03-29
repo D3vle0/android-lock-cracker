@@ -23,6 +23,7 @@ RUN chown root:android /flag
 RUN chmod 440 /flag
 
 RUN curl -o /home/android/GestureRainbowTable.db http://146.56.134.145:31337/file/GestureRainbowTable.db
+RUN echo "RAINBOWTABLE_PATH=/home/android/GestureRainbowTable.db" >> .env
 
 ADD ./settings/android.xinetd /etc/xinetd.d/prob
 ADD ./settings/start.sh /start.sh
