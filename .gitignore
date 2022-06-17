@@ -1,6 +1,8 @@
 *.db
 *.key
 .DS_STORE
+.env
+gui/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

